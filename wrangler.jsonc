@@ -21,7 +21,15 @@
   ],
   "observability": {
     "enabled": true
-  }
-  // Once the fiction.xxx zone is moved onto Cloudflare, uncomment to bind the domain:
-  // "routes": [{ "pattern": "fiction.xxx", "custom_domain": true }]
+  },
+  // Keep the *.workers.dev URL live — the GitHub Pages preview form's WORKER_ORIGIN points at it.
+  "workers_dev": true
+  // fiction.xxx zone is active on Cloudflare (nameservers migrated from Vercel 2026-07-01), but
+  // binding it as a custom_domain needs the pre-existing (broken, HTTP 402) Vercel apex/www A
+  // records deleted first (Cloudflare error 100117). Deferred: token DNS perm was flapping during
+  // a board token edit. Re-enable by deleting those records + uncommenting:
+  // "routes": [
+  //   { "pattern": "fiction.xxx", "custom_domain": true },
+  //   { "pattern": "www.fiction.xxx", "custom_domain": true }
+  // ]
 }
