@@ -23,13 +23,14 @@
     "enabled": true
   },
   // Keep the *.workers.dev URL live — the GitHub Pages preview form's WORKER_ORIGIN points at it.
-  "workers_dev": true
-  // fiction.xxx zone is active on Cloudflare (nameservers migrated from Vercel 2026-07-01), but
-  // binding it as a custom_domain needs the pre-existing (broken, HTTP 402) Vercel apex/www A
-  // records deleted first (Cloudflare error 100117). Deferred: token DNS perm was flapping during
-  // a board token edit. Re-enable by deleting those records + uncommenting:
-  // "routes": [
-  //   { "pattern": "fiction.xxx", "custom_domain": true },
-  //   { "pattern": "www.fiction.xxx", "custom_domain": true }
-  // ]
+  "workers_dev": true,
+  // Apex + www are bound as Worker custom domains and serving live (verified 2026-07-01: both
+  // return HTTP 200 from `server: cloudflare`, and POST /api/waitlist → {"ok":true}). The zone
+  // moved from Vercel → Cloudflare and the stale Vercel apex/www A records (which caused bind
+  // error 100117 / HTTP 402) were deleted during FIC-4. These routes codify that live binding so
+  // a future `wrangler deploy` re-asserts it rather than dropping the custom domain (config drift).
+  "routes": [
+    { "pattern": "fiction.xxx", "custom_domain": true },
+    { "pattern": "www.fiction.xxx", "custom_domain": true }
+  ]
 }
