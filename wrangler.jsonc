@@ -1,0 +1,24 @@
+{
+  // fiction.xxx landing page + waitlist API.
+  // Deployed by .github/workflows/deploy-worker.yml (needs CLOUDFLARE_API_TOKEN repo secret).
+  "name": "fiction-landing",
+  "main": "src/worker.js",
+  "compatibility_date": "2026-06-01",
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "fiction-waitlist",
+      // Production database, created 2026-07-01 in the company Cloudflare account (WNAM)
+      "database_id": "ee9aca6f-ded9-47ec-b8ff-e9e0735bd68c"
+    }
+  ],
+  "observability": {
+    "enabled": true
+  }
+  // Once the fiction.xxx zone is moved onto Cloudflare, uncomment to bind the domain:
+  // "routes": [{ "pattern": "fiction.xxx", "custom_domain": true }]
+}

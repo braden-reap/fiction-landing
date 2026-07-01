@@ -1,0 +1,31 @@
+name: Deploy Worker (Cloudflare)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Secrets aren't readable in job-level `if`, so gate via a step output.
+      - name: Check for Cloudflare token
+        id: token
+        run: echo "have_token=${{ secrets.CLOUDFLARE_API_TOKEN != '' }}" >> "$GITHUB_OUTPUT"
+
+      - name: Deploy with wrangler
+        if: steps.token.outputs.have_token == 'true'
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          # Optional — only needed if the token can see multiple accounts:
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Note skipped deploy
+        if: steps.token.outputs.have_token != 'true'
+        run: |
+          echo "### Worker deploy skipped" >> "$GITHUB_STEP_SUMMARY"
+          echo "Set the \`CLOUDFLARE_API_TOKEN\` repository secret (Workers Scripts:Edit + D1:Edit) to enable deploys." >> "$GITHUB_STEP_SUMMARY"
