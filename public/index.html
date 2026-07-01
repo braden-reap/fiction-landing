@@ -363,7 +363,7 @@
     // Set to the deployed Worker origin (e.g. https://fiction-landing.<account>.workers.dev)
     // so the GitHub Pages preview can reach the waitlist API. Same-origin deploys
     // (workers.dev / fiction.xxx) leave this empty and hit /api/waitlist directly.
-    const WORKER_ORIGIN = '';
+    const WORKER_ORIGIN = 'https://fiction-landing.storytime.workers.dev';
     const API_BASE = location.hostname.endsWith('github.io') ? WORKER_ORIGIN : '';
 
     const form = document.getElementById('waitlist-form');

@@ -12,8 +12,11 @@
     {
       "binding": "DB",
       "database_name": "fiction-waitlist",
-      // Production database, created 2026-07-01 in the company Cloudflare account (WNAM)
-      "database_id": "ee9aca6f-ded9-47ec-b8ff-e9e0735bd68c"
+      // Production DB in the deploy account cba2202e (ENAM). Recreated 2026-07-01: the
+      // original ee9aca6f lived in a different CF account than the deploy token, so the
+      // Worker's binding couldn't resolve it (deploy error 10181). Must stay co-located
+      // with the account CLOUDFLARE_API_TOKEN authenticates to.
+      "database_id": "4a09d436-2fe5-4c83-a5f1-bd06884f32da"
     }
   ],
   "observability": {
