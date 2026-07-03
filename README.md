@@ -41,6 +41,39 @@ Any of:
 - Cloudflare dashboard → D1 → `fiction-waitlist` (browse/export).
 - Cloudflare MCP `d1_database_query` with database id `ee9aca6f-ded9-47ec-b8ff-e9e0735bd68c`.
 
+## Invite codes — the beta access gate (FIC-42)
+
+During the beta, **fiction-app refuses to create an account without a redeemed
+invite code**. This Worker is the single source of truth for issuance *and*
+redemption (table `invite_codes`), so the two can never drift.
+
+- `POST /api/invite/redeem` — **public**. Body `{ code, email }`. Called by the
+  fiction-app signup route before it creates the account. Atomic + single-use;
+  a resubmit from the *same* email is idempotent (`ok: true, alreadyRedeemed`).
+- `POST /api/invite/generate` — **admin** (`Authorization: Bearer $INVITE_ADMIN_TOKEN`).
+  Mints codes. Body options: `fromWaitlist: N` (bind one code to each of the N
+  oldest un-coded waitlist authors — the grant path), `email` (bind one code),
+  `count: N` (unbound), plus `role`, `note`, `maxUses`.
+- `POST /api/invite/revoke` — **admin**. Body `{ code }`. Soft-revokes a leaked code.
+
+The admin token is the `INVITE_ADMIN_TOKEN` Worker secret (`wrangler secret put
+INVITE_ADMIN_TOKEN`); with it unset the admin endpoints fail closed (503). A copy
+lives in the Paperclip company secret store so the team can mint codes.
+
+```bash
+# Grant invites to the 10 oldest waitlist authors:
+curl -sX POST https://fiction.xxx/api/invite/generate \
+  -H "Authorization: Bearer $INVITE_ADMIN_TOKEN" -H "Content-Type: application/json" \
+  -d '{"fromWaitlist":10}'
+
+# List outstanding (unredeemed, un-revoked) codes:
+npx wrangler d1 execute fiction-waitlist --remote --command \
+  "SELECT code, email, note, used_count, max_uses FROM invite_codes WHERE redeemed_at IS NULL AND revoked_at IS NULL ORDER BY created_at"
+```
+
+fiction-app enables the gate with `INVITE_REQUIRED=true` + `INVITE_REDEEM_URL`
+pointing at `https://fiction.xxx/api/invite/redeem` (see that repo's signup path).
+
 ## Domain (fiction.xxx)
 
 - Registered at **GoDaddy**, expires **2026-12-30**; nameservers currently point
